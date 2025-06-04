@@ -1,5 +1,19 @@
 set -euo pipefail
 
+# 1. Opprett .XCompose med dine tilpassede sekvenser
+XCOMPOSE_PATH="$HOME/.XCompose"
+cat > "$XCOMPOSE_PATH" <<EOF
+<Multi_key> <0> <2> <g> : "Ø"
+<Multi_key> <0> <3> <c> : "ø"
+<Multi_key> <0> <2> <t> : "å"
+<Multi_key> <0> <2> <u> : "æ"
+<Multi_key> <0> <1> <y> : "Æ"
+<Multi_key> <0> <1> <x> : "Å"
+EOF
+
+echo "✅ Skrev Compose-innstillinger til $XCOMPOSE_PATH"
+
+# 2. Generer SSH-nøkkel hvis den ikke finnes
 KEY_PATH="$HOME/.ssh/id_ed25519"
 if [ ! -f "$KEY_PATH" ]; then
   echo "Genererer ny SSH-nøkkel..."
@@ -35,6 +49,7 @@ while true; do
   fi
 done
 
+# 3. Clone dotfiles-repo
 DEFAULT_DIR="$HOME/nixos-dotfiles"
 REPO_URL="git@github.com:Sadoaz/nixos-dotfiles.git"
 echo "Cloner repo med nix shell: $REPO_URL"
@@ -50,20 +65,32 @@ else
   echo "❌ Fant ikke $SRC_HARDWARE – hopper over kopiering"
 fi
 
+# 4. Installer Signal via Flatpak
 if ! flatpak list | grep -q org.signal.Signal; then
   echo "Installerer Signal fra Flathub..."
   flatpak install -y flathub org.signal.Signal
-  sudo flatpak override --env=SIGNAL_PASSWORD_STORE=gnome-libsecret org.signal.Signal
-else
-  echo "Signal er allerede installert."
 fi
 
+# 5. Sett Flatpak override slik at Signal får tilgang til .XCompose
+sudo flatpak override org.signal.Signal --filesystem=$HOME/.XCompose:ro
+sudo flatpak override org.signal.Signal --env=SIGNAL_PASSWORD_STORE=gnome-libsecret
+
+# 6. Rebuild systemet med flake
 echo "Rebuilder system med flake ~/nixos-dotfiles#laptop"
 sudo nixos-rebuild switch --flake ~/nixos-dotfiles#laptop
 
+# 7. Konfigurer git
 echo "Konfigurerer git globalt..."
 git config --global user.name "Sadoaz"
 git config --global user.email "sadoazsosial@gmail.com"
 
+# 8. Fiks eierskap på neovim undo-dir
 echo
-echo "✅ Alt ferdig. Maskinen er konfigurert."
+echo "Fikser eierskap på ~/.local/state/nvim/undo hvis nødvendig..."
+if [ -d "$HOME/.local/state/nvim/undo" ]; then
+  sudo chown -R "$USER:$(id -gn)" "$HOME/.local/state/nvim/undo"
+  chmod 700 "$HOME/.local/state/nvim/undo"
+fi
+
+echo
+echo "✅ Alt ferdig. Compose-tast skal nå fungere i Signal også."
