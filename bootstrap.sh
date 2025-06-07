@@ -3,12 +3,12 @@ set -euo pipefail
 # 1. Opprett .XCompose med dine tilpassede sekvenser
 XCOMPOSE_PATH="$HOME/.XCompose"
 cat > "$XCOMPOSE_PATH" <<EOF
-<Multi_key> <0> <2> <g> : "Ø"
-<Multi_key> <0> <3> <c> : "ø"
-<Multi_key> <0> <2> <t> : "å"
-<Multi_key> <0> <2> <u> : "æ"
-<Multi_key> <0> <1> <y> : "Æ"
-<Multi_key> <0> <1> <x> : "Å"
+<Cancel> <0> <2> <g> : "Ø"
+<Cancel> <0> <3> <c> : "ø"
+<Cancel> <0> <2> <t> : "å"
+<Cancel> <0> <2> <u> : "æ"
+<Cancel> <0> <1> <y> : "Æ"
+<Cancel> <0> <1> <x> : "Å"
 EOF
 
 echo "✅ Skrev Compose-innstillinger til $XCOMPOSE_PATH"
