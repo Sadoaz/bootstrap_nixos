@@ -97,7 +97,12 @@ sudo flatpak override org.signal.Signal --filesystem=$HOME/.XCompose:ro
 sudo flatpak override org.signal.Signal --env=SIGNAL_PASSWORD_STORE=gnome-libsecret
 
 flatpak install flathub com.moonlight_stream.Moonlight
+
+git clone https://github.com/arcticicestudio/nord-tmux.git ~/.tmux/themes/nord-tmux
+
+tmux source-file ~/.tmux.conf
 asusctl -k high
+
 
 echo
 echo "✅ Alt ferdig. Compose-tast skal nå fungere i Signal også."
